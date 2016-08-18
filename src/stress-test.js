@@ -1,3 +1,6 @@
+/* eslint-env mocha */
+'use strict'
+
 var streamPair = require('stream-pair')
 
 module.exports.all = function (test, common) {
