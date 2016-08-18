@@ -8,6 +8,14 @@ const expect = chai.expect
 const pair = require('pull-pair/duplex')
 const pull = require('pull-stream')
 
+function closeAndWait (stream, cb) {
+  pull(
+    pull.empty(),
+    stream,
+    pull.onEnd(cb)
+  )
+}
+
 module.exports = (common) => {
   describe('base', () => {
     let muxer
@@ -25,24 +33,18 @@ module.exports = (common) => {
       const dialer = muxer.dial(p[0])
       const listener = muxer.listen(p[1])
 
-      expect(3).checks(done)
+      expect(4).checks(done)
 
       listener.on('stream', (stream) => {
         expect(stream).to.exist.mark()
-        pull(pull.empty(), stream)
+        closeAndWait(pull, (err) => expect(err).to.not.exist.mark())
       })
 
       const conn = dialer.newStream((err) => {
         expect(err).to.not.exist.mark()
       })
 
-      pull(
-        pull.empty(),
-        conn,
-        pull.onEnd((err) => {
-          expect(err).to.not.exist.mark()
-        })
-      )
+      closeAndWait(pull, (err) => expect(err).to.not.exist.mark())
     })
 
     it('Open a stream from the listener', (done) => {
@@ -54,6 +56,7 @@ module.exports = (common) => {
 
       dialer.on('stream', (stream) => {
         expect(stream).to.exist.mark()
+        pull(pull.empty(), stream)
       })
 
       const conn = listener.newStream((err) => {
@@ -61,7 +64,7 @@ module.exports = (common) => {
       })
 
       pull(
-        pull.empty(),
+        //pull.empty(),
         conn,
         pull.onEnd((err) => {
           expect(err).to.not.exist.mark()
@@ -74,7 +77,7 @@ module.exports = (common) => {
       const dialer = muxer.dial(p[0])
       const listener = muxer.listen(p[1])
 
-      expect(6).check(done).mark()
+      expect(6).check(done)
 
       dialer.on('stream', (stream) => {
         expect(stream).to.exist.mark()
@@ -113,7 +116,7 @@ module.exports = (common) => {
       const dialer = muxer.dial(p[0])
       const listener = muxer.listen(p[1])
 
-      expect(6).check(done).mark()
+      expect(6).check(done)
 
       const dialerConn = dialer.newStream((err) => {
         expect(err).to.not.exist.mark()
