@@ -7,13 +7,20 @@ const expect = chai.expect
 
 const pair = require('pull-pair/duplex')
 const pull = require('pull-stream')
-
-function closeAndWait (stream, cb) {
+function closeAndWait (stream) {
   pull(
     pull.empty(),
     stream,
-    pull.onEnd(cb)
+    pull.onEnd((err) => {
+      expect(err).to.not.exist.mark()
+    })
   )
+}
+
+function expectEnd () {
+  return (err) => {
+    expect(err).to.not.exist.mark()
+  }
 }
 
 module.exports = (common) => {
@@ -37,14 +44,14 @@ module.exports = (common) => {
 
       listener.on('stream', (stream) => {
         expect(stream).to.exist.mark()
-        closeAndWait(pull, (err) => expect(err).to.not.exist.mark())
+        closeAndWait(stream)
       })
 
       const conn = dialer.newStream((err) => {
         expect(err).to.not.exist.mark()
       })
 
-      closeAndWait(pull, (err) => expect(err).to.not.exist.mark())
+      closeAndWait(conn)
     })
 
     it('Open a stream from the listener', (done) => {
@@ -52,24 +59,18 @@ module.exports = (common) => {
       const dialer = muxer.dial(p[0])
       const listener = muxer.listen(p[1])
 
-      expect(3).check(done)
+      expect(4).check(done)
 
       dialer.on('stream', (stream) => {
         expect(stream).to.exist.mark()
-        pull(pull.empty(), stream)
+        closeAndWait(stream)
       })
 
       const conn = listener.newStream((err) => {
         expect(err).to.not.exist.mark()
       })
 
-      pull(
-        //pull.empty(),
-        conn,
-        pull.onEnd((err) => {
-          expect(err).to.not.exist.mark()
-        })
-      )
+      closeAndWait(conn)
     })
 
     it('Open a stream on both sides', (done) => {
@@ -77,10 +78,11 @@ module.exports = (common) => {
       const dialer = muxer.dial(p[0])
       const listener = muxer.listen(p[1])
 
-      expect(6).check(done)
+      expect(8).check(done)
 
       dialer.on('stream', (stream) => {
         expect(stream).to.exist.mark()
+        closeAndWait(stream)
       })
 
       const listenerConn = listener.newStream((err) => {
@@ -89,26 +91,15 @@ module.exports = (common) => {
 
       listener.on('stream', (stream) => {
         expect(stream).to.exist.mark()
+        closeAndWait(stream)
       })
 
       const dialerConn = dialer.newStream((err) => {
         expect(err).to.not.exist.mark()
       })
 
-      pull(
-        pull.empty(),
-        dialerConn,
-        pull.onEnd((err) => {
-          expect(err).to.not.exist.mark()
-        })
-      )
-      pull(
-        pull.empty(),
-        listenerConn,
-        pull.onEnd((err) => {
-          expect(err).to.not.exist.mark()
-        })
-      )
+      closeAndWait(dialerConn)
+      closeAndWait(listenerConn)
     })
 
     it('Open a stream on one side, write, open a stream in the other side', (done) => {
@@ -156,6 +147,26 @@ module.exports = (common) => {
           )
         }
       })
+    })
+
+    it('Emits close events', (done) => {
+      const p = pair()
+      const dialer = muxer.dial(p[0])
+      const listener = muxer.listen(p[1])
+
+      expect(2).check(done)
+
+      const c1 = dialer.newStream()
+      const c2 = listener.newStream()
+
+      pull(pull.empty(), c1)
+      pull(pull.empty(), c2)
+
+      dialer.on('close', expectEnd())
+      listener.on('close', expectEnd())
+
+      dialer.end()
+      listener.end()
     })
   })
 }
