@@ -4,7 +4,7 @@
 const spawn = require('./spawner')
 
 module.exports = (common) => {
-  describe('stress test', () => {
+  describe.only('stress test', () => {
     let muxer
 
     beforeEach((done) => {
@@ -27,39 +27,39 @@ module.exports = (common) => {
       spawn(muxer, 1, 100, done)
     })
 
-    it('10 stream with 1 msg', (done) => {
+    it('10 streams with 1 msg', (done) => {
       spawn(muxer, 10, 1, done)
     })
 
-    it('10 stream with 10 msg', (done) => {
+    it('10 streams with 10 msg', (done) => {
       spawn(muxer, 10, 10, done)
     })
 
-    it('10 stream with 100 msg', (done) => {
-      spawn(muxer, 10, 10, done)
+    it('10 streams with 100 msg', (done) => {
+      spawn(muxer, 10, 100, done)
     })
 
-    it('100 stream with 1 msg', (done) => {
+    it('100 streams with 1 msg', (done) => {
       spawn(muxer, 100, 1, done)
     })
 
-    it('100 stream with 10 msg', (done) => {
+    it('100 streams with 10 msg', (done) => {
       spawn(muxer, 100, 10, done)
     })
 
-    it('100 stream with 100 msg', (done) => {
-      spawn(muxer, 100, 10, done)
+    it('100 streams with 100 msg', (done) => {
+      spawn(muxer, 100, 100, done)
     })
 
-    it.skip('1000 stream with 1 msg', (done) => {
+    it('1000 streams with 1 msg', (done) => {
       spawn(muxer, 1000, 1, done)
     })
 
-    it.skip('1000 stream with 10 msg', (done) => {
+    it('1000 streams with 10 msg', (done) => {
       spawn(muxer, 1000, 10, done)
     })
 
-    it.skip('1000 stream with 100 msg', (done) => {
+    it('1000 streams with 100 msg', (done) => {
       spawn(muxer, 1000, 100, done)
     })
   })
