@@ -47,7 +47,7 @@ module.exports = (common) => {
       spawn(muxer, 100, 10, done)
     })
 
-    it('100 streams with 100 msg', (done) => {
+    it.only('100 streams with 100 msg', (done) => {
       spawn(muxer, 100, 100, done)
     })
 
