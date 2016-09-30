@@ -81,7 +81,7 @@ This method negotiates and opens a new stream with the other endpoint.
 
 If `err` is passed, no operation should be made in `stream`.
 
-`stream` interface our established Stream with the other endpoint, it must implement the [Duplex pull-stream interface](https://pull-stream.github.io) in JavaScript or the [ReadWriteCloser](http://golang.org/pkg/io/#ReadWriteCloser) in Go.
+`stream` interface our established Stream with the other endpoint, it must implement the [Duplex pull-stream interface](https://pull-stream.github.io) in JavaScript or the [ReadWriteCloser](https://golang.org/pkg/io/) in Go.
 
 ### Listen(wait/accept) a new incoming stream
 
