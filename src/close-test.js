@@ -5,6 +5,7 @@
 const chai = require('chai')
 chai.use(require('chai-checkmark'))
 const expect = chai.expect
+
 const pair = require('pull-pair/duplex')
 const pull = require('pull-stream')
 const parallel = require('async/parallel')

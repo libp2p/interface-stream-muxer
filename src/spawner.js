@@ -1,6 +1,8 @@
 'use strict'
 
-const expect = require('chai').expect
+const chai = require('chai')
+chai.use(require('dirty-chai'))
+const expect = chai.expect
 
 const pair = require('pull-pair/duplex')
 const pull = require('pull-stream')
@@ -22,16 +24,16 @@ module.exports = (muxer, nStreams, nMsg, done, limit) => {
   const dialer = muxer.dialer(dialerSocket)
 
   listener.on('stream', (stream) => {
-    expect(stream).to.exist // eslint-disable-line
+    expect(stream).to.exist()
     check()
     pull(
       stream,
       pull.through((chunk) => {
-        expect(chunk).to.exist // eslint-disable-line
+        expect(chunk).to.exist()
         check()
       }),
       pull.onEnd((err) => {
-        expect(err).to.not.exist // eslint-disable-line
+        expect(err).to.not.exist()
         check()
         pull(pull.empty(), stream)
       })
@@ -45,9 +47,9 @@ module.exports = (muxer, nStreams, nMsg, done, limit) => {
 
   const spawnStream = (n, cb) => {
     const stream = dialer.newStream((err) => {
-      expect(err).to.not.exist // eslint-disable-line
+      expect(err).to.not.exist()
       check()
-      expect(stream).to.exist // eslint-disable-line
+      expect(stream).to.exist()
       check()
       pull(
         generate(0, (s, cb) => {
@@ -57,7 +59,7 @@ module.exports = (muxer, nStreams, nMsg, done, limit) => {
         }),
         stream,
         pull.collect((err, res) => {
-          expect(err).to.not.exist // eslint-disable-line
+          expect(err).to.not.exist()
           check()
           expect(res).to.be.eql([])
           check()

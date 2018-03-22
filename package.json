@@ -43,7 +43,9 @@
     "pull-stream": "^3.6.1"
   },
   "devDependencies": {
-    "aegir": "^12.2.0"
+    "aegir": "^12.2.0",
+    "dirty-chai": "^2.0.1",
+    "pull-abortable": "^4.1.1"
   },
   "contributors": [
     "David Dias <daviddias.p@gmail.com>",

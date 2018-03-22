@@ -4,8 +4,10 @@
 const chai = require('chai')
 chai.use(require('chai-checkmark'))
 const expect = chai.expect
+
 const pair = require('pull-pair/duplex')
 const pull = require('pull-stream')
+const abortable = require('pull-abortable')
 
 function closeAndWait (stream) {
   pull(
@@ -141,6 +143,37 @@ module.exports = (common) => {
       pull(
         pull.values(['hey']),
         dialerConn
+      )
+    })
+
+    it('Open a stream and abort', (done) => {
+      const p = pair()
+      const dialerSocket = p[0]
+      const listenerSocket = p[1]
+
+      const dialer = muxer.dialer(dialerSocket)
+      const listener = muxer.listener(listenerSocket)
+
+      dialer.once('stream', (conn) => {
+        pull(conn, conn)
+      })
+
+      const aborter = abortable()
+
+      const conn = listener.newStream()
+      pull(listenerSocket, aborter)
+      pull(
+        pull.values([Buffer.from('hello')]),
+        conn,
+        pull.collect((err, data) => {
+          expect(err).to.not.exist()
+          expect(data.toString()).to.be.eql('hello')
+          aborter.abort(new Error('aborted!!'))
+          listener.newStream((err) => {
+            expect(err).to.exist()
+            done()
+          })
+        })
       )
     })
   })
