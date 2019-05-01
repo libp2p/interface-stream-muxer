@@ -116,7 +116,7 @@ pipe(conn, muxer, conn) // conn is duplex connection to another peer
     ```
 * `maxMsgSize` - The maximum size in bytes the data field of multiplexed messages may contain (default 1MB)
 
-### `muxer.onStream`
+#### `muxer.onStream`
 
 Use this property as an alternative to passing `onStream` as an option to the `Muxer` constructor.
 
