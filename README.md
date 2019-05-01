@@ -150,7 +150,7 @@ If `err` is passed, no operation should be made in `conn`.
 
 `muxedConn` interfaces our established Connection with the other endpoint, it must offer an interface to open a stream inside this connection and to receive incomming stream requests.
 
-### Dial(open/create) a new stream
+#### Dial(open/create) a new stream
 
 ```go
 stream, err := muxedConn.newStream()
