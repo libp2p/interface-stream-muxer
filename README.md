@@ -162,7 +162,7 @@ If `err` is passed, no operation should be made in `stream`.
 
 `stream` interface our established Stream with the other endpoint, it must implement the [ReadWriteCloser](http://golang.org/pkg/io/#ReadWriteCloser).
 
-### Listen(wait/accept) a new incoming stream
+#### Listen(wait/accept) a new incoming stream
 
 ```go
 stream := muxedConn.Accept()
