@@ -136,7 +136,7 @@ pipe([1, 2, 3], stream, consume)
 
 ### Go
 
-### Attach muxer to a Connection
+#### Attach muxer to a Connection
 
 ```go
 muxedConn, err := muxer.Attach(conn, isListener)
