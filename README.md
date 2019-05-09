@@ -64,7 +64,7 @@ test(common)
 
 ### JS
 
-A valid (read: that follows this abstraction) stream muxer, must implement the following API:
+A valid (one that follows this abstraction) stream muxer, must implement the following API:
 
 #### `const muxer = new Muxer([options])`
 
