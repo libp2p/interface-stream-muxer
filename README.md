@@ -120,6 +120,12 @@ pipe(conn, muxer, conn) // conn is duplex connection to another peer
 
 Use this property as an alternative to passing `onStream` as an option to the `Muxer` constructor.
 
+```js
+const muxer = new Muxer()
+// ...later
+muxer.onStream = stream => { /* ... */ }
+```
+
 #### `const stream = muxer.newStream([options])`
 
 Initiate a new stream with the remote. Returns a [duplex stream](https://gist.github.com/alanshaw/591dc7dd54e4f99338a347ef568d6ee9#duplex-it).
