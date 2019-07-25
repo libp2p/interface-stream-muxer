@@ -7,7 +7,7 @@ const pLimit = require('p-limit')
 const { collect, tap, consume } = require('streaming-iterables')
 
 module.exports = async (Muxer, nStreams, nMsg, limit) => {
-  const [ dialerSocket, listenerSocket ] = pair()
+  const [dialerSocket, listenerSocket] = pair()
   const { check, done } = marker((4 * nStreams) + (nStreams * nMsg))
 
   const msg = 'simple msg'
@@ -37,7 +37,7 @@ module.exports = async (Muxer, nStreams, nMsg, limit) => {
     check()
 
     const res = await pipe(
-      (async function * () {
+      (function * () {
         for (let i = 0; i < nMsg; i++) {
           // console.log('n', n, 'msg', i)
           yield new Promise(resolve => resolve(msg))

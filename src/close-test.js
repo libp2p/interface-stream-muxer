@@ -19,7 +19,7 @@ async function closeAndWait (stream) {
 }
 
 const infiniteRandom = {
-  [Symbol.asyncIterator]: async function * () {
+  [Symbol.asyncIterator]: function * () {
     while (true) {
       yield new Promise(resolve => {
         setTimeout(() => resolve(Buffer.from(Math.random().toString())), 10)
