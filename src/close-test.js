@@ -66,8 +66,6 @@ module.exports = (common) => {
           throw new Error('stream did not throw')
         })()
       }))
-
-      console.log('ALL DONE!')
     })
 
     it('closing one of the muxed streams doesn\'t close others', (done) => {
