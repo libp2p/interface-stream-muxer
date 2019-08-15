@@ -11,7 +11,7 @@ const { consume } = require('streaming-iterables')
 const Tcp = require('libp2p-tcp')
 const multiaddr = require('multiaddr')
 
-const mh = multiaddr('/ip4/127.0.0.1/tcp/10000')
+const mh = multiaddr('/ip4/127.0.0.1/tcp/0')
 
 async function closeAndWait (stream) {
   await pipe([], stream, consume)
@@ -44,7 +44,7 @@ module.exports = (common) => {
       })
 
       await tcpListener.listen(mh)
-      const dialerConn = await tcp.dial(mh)
+      const dialerConn = await tcp.dial(tcpListener.getAddrs()[0])
       const dialerMuxer = new Muxer()
 
       pipe(dialerConn, dialerMuxer, dialerConn)
@@ -61,11 +61,13 @@ module.exports = (common) => {
           try {
             await pipe(infiniteRandom, stream, consume)
           } catch (err) {
-            return expect(err).to.exist.mark()
+            return expect(err).to.exist()
           }
           throw new Error('stream did not throw')
         })()
       }))
+
+      console.log('ALL DONE!')
     })
 
     it('closing one of the muxed streams doesn\'t close others', (done) => {
