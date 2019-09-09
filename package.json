@@ -38,7 +38,7 @@
     "detect-node": "^2.0.4",
     "it-pair": "^1.0.0",
     "it-pipe": "^1.0.1",
-    "libp2p-tcp": "github:libp2p/js-libp2p-tcp#feat/async-await",
+    "libp2p-tcp": "github:libp2p/js-libp2p-tcp#feat/async-await2",
     "multiaddr": "^6.1.0",
     "p-limit": "^2.2.0",
     "streaming-iterables": "^4.1.0"

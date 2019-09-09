@@ -37,35 +37,39 @@ module.exports = (common) => {
     })
 
     it('closing underlying socket closes streams (tcp)', async () => {
-      const tcp = new Tcp()
-      const tcpListener = tcp.createListener(conn => {
-        const listener = new Muxer(stream => pipe(stream, stream))
-        pipe(conn, listener, conn)
+      const mockConn = muxer => ({
+        newStream: (...args) => muxer.newStream(...args)
       })
+
+      const mockUpgrade = () => maConn => {
+        const muxer = new Muxer(stream => pipe(stream, stream))
+        pipe(maConn, muxer, maConn)
+        return mockConn(muxer)
+      }
+
+      const mockUpgrader = () => ({
+        upgradeInbound: mockUpgrade(),
+        upgradeOutbound: mockUpgrade()
+      })
+
+      const tcp = new Tcp({ upgrader: mockUpgrader() })
+      const tcpListener = tcp.createListener()
 
       await tcpListener.listen(mh)
       const dialerConn = await tcp.dial(tcpListener.getAddrs()[0])
-      const dialerMuxer = new Muxer()
 
-      pipe(dialerConn, dialerMuxer, dialerConn)
-
-      const s1 = dialerMuxer.newStream()
-      const s2 = dialerMuxer.newStream()
+      const s1 = await dialerConn.newStream()
+      const s2 = await dialerConn.newStream()
 
       // close the listener in a bit
       setTimeout(() => tcpListener.close(), 50)
 
-      // test is complete when all muxed streams have closed with error
-      await Promise.all([s1, s2].map(stream => {
-        return (async () => {
-          try {
-            await pipe(infiniteRandom, stream, consume)
-          } catch (err) {
-            return expect(err).to.exist()
-          }
-          throw new Error('stream did not throw')
-        })()
-      }))
+      const s1Result = pipe(infiniteRandom, s1, consume)
+      const s2Result = pipe(infiniteRandom, s2, consume)
+
+      // test is complete when all muxed streams have closed
+      await s1Result
+      await s2Result
     })
 
     it('closing one of the muxed streams doesn\'t close others', (done) => {
