@@ -33,6 +33,8 @@
   },
   "homepage": "https://github.com/libp2p/interface-stream-muxer",
   "dependencies": {
+    "abort-controller": "^3.0.0",
+    "abortable-iterator": "^2.1.0",
     "chai": "^4.2.0",
     "chai-checkmark": "^1.0.1",
     "detect-node": "^2.0.4",

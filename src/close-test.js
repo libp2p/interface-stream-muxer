@@ -2,28 +2,29 @@
 /* eslint max-nested-callbacks: ["error", 8] */
 'use strict'
 
-const chai = require('chai')
-chai.use(require('chai-checkmark'))
-const { expect } = chai
 const pair = require('it-pair/duplex')
 const pipe = require('it-pipe')
 const { consume } = require('streaming-iterables')
 const Tcp = require('libp2p-tcp')
 const multiaddr = require('multiaddr')
+const abortable = require('abortable-iterator')
+const AbortController = require('abort-controller')
 
 const mh = multiaddr('/ip4/127.0.0.1/tcp/0')
 
-async function closeAndWait (stream) {
-  await pipe([], stream, consume)
-  expect(true).to.be.true.mark()
+function pause (ms) {
+  return new Promise(resolve => setTimeout(resolve, ms))
+}
+
+function randomBuffer () {
+  return Buffer.from(Math.random().toString())
 }
 
 const infiniteRandom = {
-  [Symbol.asyncIterator]: function * () {
+  [Symbol.asyncIterator]: async function * () {
     while (true) {
-      yield new Promise(resolve => {
-        setTimeout(() => resolve(Buffer.from(Math.random().toString())), 10)
-      })
+      yield randomBuffer()
+      await pause(10)
     }
   }
 }
@@ -72,31 +73,46 @@ module.exports = (common) => {
       await s2Result
     })
 
-    it('closing one of the muxed streams doesn\'t close others', (done) => {
+    it('closing one of the muxed streams doesn\'t close others', async () => {
       const p = pair()
       const dialer = new Muxer()
-      const listener = new Muxer(stream => {
-        expect(stream).to.exist.mark()
-        pipe(stream, stream)
-      })
+
+      // Listener is echo server :)
+      const listener = new Muxer(stream => pipe(stream, stream))
 
       pipe(p[0], dialer, p[0])
       pipe(p[1], listener, p[1])
 
-      expect(2).checks(done)
+      const stream = dialer.newStream()
+      const streams = Array.from(Array(5), () => dialer.newStream())
+      let closed = false
+      const controllers = []
 
-      const streams = []
+      const streamResults = streams.map(async stream => {
+        const controller = new AbortController()
+        controllers.push(controller)
 
-      for (let i = 0; i < 5; i++) {
-        streams.push(dialer.newStream())
-      }
+        try {
+          const abortableRand = abortable(infiniteRandom, controller.signal, { abortCode: 'ERR_TEST_ABORT' })
+          await pipe(abortableRand, stream, consume)
+        } catch (err) {
+          if (err.code !== 'ERR_TEST_ABORT') throw err
+        }
 
-      closeAndWait(streams[0])
-
-      streams.slice(1).forEach(async stream => {
-        await pipe(infiniteRandom, stream, consume)
-        throw new Error('should not end')
+        if (!closed) throw new Error('stream should not have ended yet!')
       })
+
+      // Pause, and then send some data and close the first stream
+      await pause(50)
+      await pipe([randomBuffer()], stream, consume)
+      closed = true
+
+      // Abort all the other streams later
+      await pause(50)
+      controllers.forEach(c => c.abort())
+
+      // These should now all resolve without error
+      await Promise.all(streamResults)
     })
   })
 }
