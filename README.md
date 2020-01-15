@@ -1,3 +1,6 @@
+⛔️ DEPRECATED: interface-stream-muxer is now included in [libp2p-interfaces](https://github.com/libp2p/js-interfaces)
+======
+
 # interface-stream-muxer
 
 [![](https://img.shields.io/badge/made%20by-Protocol%20Labs-blue.svg?style=flat-square)](http://protocol.ai)
